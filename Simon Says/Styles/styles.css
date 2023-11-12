@@ -53,5 +53,5 @@ body {
 }
 
 .flash{
-  filter: brightness(30%);
+  opacity: 0.9;
 }
