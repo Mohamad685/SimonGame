@@ -1,68 +1,61 @@
-const red= document.querySelector('#red')
-const blue= document.querySelector('#blue')
-const yellow= document.querySelector('#yellow')
-const green= document.querySelector('#green')
-
 const colors=["red","green","yellow","blue"]
 
-const redSound= document.querySelector('#sound1')
-const blueSound= document.querySelector('#sound3')
-const greenSound= document.querySelector('#sound2')
-const yellowSound= document.querySelector('#sound4')
-const headChange= document.getElementById("level-title")
-
-const colorSound = {
-    red : redSound,
-    blue: blueSound,
-    yellow: yellowSound,
-    green:greenSound,
-}
-
-const autoSequence=[]
-const userSequence=[]
+let autoSequence=[]
+let userSequence=[]
 
 let level=0
 let gameBegin= false
 
 // //Functions section
+
+
+//function that checks the input of the user 
 function userInputChecking(userlevel){
-    if (userSequence[userSequence.length - 1] === autoSequence[userSequence.length - 1]) {
-        if (userSequence.length === autoSequence.length) {
+    if (userSequence[userSequence.length - 1] === autoSequence[userSequence.length - 1]) {  //checking the last input by user is right 
+        if (userSequence.length === autoSequence.length) { //checking if the user inputed the same number of colors
             console.log("User has completed their sequence")
             setTimeout(function() {
             autoSequencing()
             }, 1000)
-            userSequence.length = 0        
+            userSequence.length = 0
     }
     }else{ 
-        gameOver()
+        playColorSound('wrong')
+        
+        document.querySelector("h1").textContent="Game Over, Press Any Key to Restart"
+        document.body.classList.add('game-over')
+        setTimeout(function(){
+            document.body.classList.remove('game-over')  
+        }, 300)
+
         restartGame()
-    }   
+    }
 }
 
-function gameOver(){
-    const overSound =document.querySelector('#sound5')
-    overSound.play()
-    document.getElementsByTagName('body')[0].classList.add('game-over')
-    document.querySelector('h1').textContent ="Game Over, Press Any Key to Restart"
-    setTimeout(function(){
-        document.getElementsByTagName('body')[0].classList.remove('game-over')
-    }, 300)
-    document.querySelector('h1').textContent ="Game Over, Press Any Key to Restart"
+
+//function to restart the game
+function restartGame(){
+    
+    autoSequence=[]
+    userSequence=[]
+    level= 0
+    gameBegin= false
 }
+
 
 // function to make an auto random sequence of colors
 function autoSequencing(){
+    
     level = level + 1
-    const autoColor = colors[Math.floor(Math.random() * colors.length)]
+    let autoColor = colors[Math.floor(Math.random() * colors.length)]
     autoSequence.push(autoColor)
     console.log(autoSequence)
-    var button = document.getElementById(autoColor)
+    let button = document.querySelector("#"+ autoColor)
     flashAddition(button, autoColor)
     playColorSound(autoColor)
     animatePress(autoColor)
-    headChange.textContent = "level =" + level
-    
+    document.getElementById('level-title').textContent = "level =" + " " + level
+    userSequence=[]
 }
 
 // function to flash for the colored boxes
@@ -73,55 +66,44 @@ function flashAddition(button, autoColor){
       }, 300)
     }
 
-// function to play sounds on colors
-function playColorSound(autoColor) {
-    const audio = colorSound[autoColor]
+// function to play sounds on colors https://noaheakin.medium.com/adding-sound-to-your-js-web-app-f6a0ca728984
+function playColorSound(sound) {
+    let audio =new Audio("./sounds/"+ sound + ".mp3") 
     audio.play()
     }
 
 // function to take the clicked input from the user with its voice
-function userChoice(e) {
-    const userColor = e.target.id
-    userSequence.push(userColor)
-    console.log(userSequence) 
-    playColorSound(userColor)
-    animatePress(userColor)
-    userInputChecking(userSequence)
-}
+document.querySelectorAll('.btn').forEach(
+    button => {
+        button.addEventListener("click",  (e) =>{
+            let userChoice= e.target.id
+            userSequence.push(userChoice)
+            playColorSound(userChoice)
+            animatePress(userChoice)
+            userInputChecking(userChoice)
+        })
+    
+    })
 
-function animatePress(color) {
-    const button = document.getElementById(color)
+//function to add animation to the color when pressed
+    function animatePress(autoColor) {
+    const button = document.querySelector("#" + autoColor)
         button.classList.add('pressed')
         setTimeout(function () {
             button.classList.remove('pressed')}, 100)
 }
 
-function restartGame(){
-    autoSequence.length=0
-    userSequence.length=0
-    level=0
-    gameBegin= false
 
-}
 
-document.addEventListener("click",function(e){
-    if (!gameBegin){
-        autoSequencing()
+// Event listener to the keypress 
+document.addEventListener("keydown",(e) => {
+    if (!gameBegin){ 
+
         gameBegin=true
-        headChange.textContent = "level =" + level
+        autoSequencing()
+    }
+    else if(autoSequence.length === userSequence.length){
+        
+        autoSequencing()
     }
 })
-
-
-red.addEventListener('click', userChoice)
-blue.addEventListener('click', userChoice)
-yellow.addEventListener('click', userChoice)
-green.addEventListener('click', userChoice)
-
-
-
-
-
-
-
-
